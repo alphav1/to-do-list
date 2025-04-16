@@ -1,0 +1,43 @@
+type Query {
+	demo: String!
+	todos: [ToDoItem!]
+	todo(title: String!, userLogin: String!): ToDoItem
+	todoById(id: ID!): ToDoItem # Added ID-based query
+	users: [User!]
+	user(login: String!): User
+	userById(id: ID!): User # Added ID-based query
+}
+
+type ToDoItem {
+	id: ID!
+	title: String!
+	completed: Boolean!
+	user: User!
+}
+
+type Mutation {
+	# User mutations
+	createUser(name: String!, email: String!, login: String!): User!
+	updateUser(login: String!, name: String, email: String): User
+	deleteUser(login: String!): Boolean!
+	getUserByLogin(login: String!): User
+
+	# Todo mutations
+	createTodo(title: String!, completed: Boolean, userLogin: String!): ToDoItem!
+	updateTodo(
+		title: String!
+		userLogin: String!
+		newTitle: String
+		completed: Boolean
+	): ToDoItem
+	deleteTodo(title: String!, userLogin: String!): Boolean!
+	toggleTodoCompleted(title: String!, userLogin: String!): ToDoItem
+}
+
+type User {
+	id: ID!
+	name: String!
+	email: String!
+	login: String!
+	todos: [ToDoItem!]!
+}
