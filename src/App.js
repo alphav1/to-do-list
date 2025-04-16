@@ -327,17 +327,26 @@ async function getTodosList() {
 }
 
 // Resolvers
+// The resolvers define how to fetch the data for each field in the schema. They consist of three phases:
+// 1. Parsing: The query is parsed into an abstract syntax tree (AST) using the GraphQL parser.
+// 2. Validation: The AST is validated against the schema to ensure it is valid and can be executed.
+// 3. Execution: The validated AST is executed against the data source to fetch the requested data.
+// The resolvers are functions that implement the logic for each field in the schema.
+// They can be asynchronous and return promises.
 const resolvers = {
     Query: {
       demo: () => 'Witaj, GraphQL działa!',
-      users: async () => getUsersList(),
-      todos: async () => getTodosList(),
-      user: async (_, { login }) => getUserByLogin(login),
-      todo: async (_, { title, userLogin }) => getUserTodoByTitle(title, userLogin),
-      userById: async (_, { id }) => getUserById(id),
-      todoById: async (_, { id }) => getTodoById(id),
+      users: async () => getUsersList(), // Get all users
+      todos: async () => getTodosList(), // Get all todos
+      user: async (_, { login }) => getUserByLogin(login), // Get user by login
+      todo: async (_, { title, userLogin }) => getUserTodoByTitle(title, userLogin), // Get todo by title and user login
+      userById: async (_, { id }) => getUserById(id), // Get user by ID
+      todoById: async (_, { id }) => getTodoById(id), // Get todo by ID
     },
+    // Mutations are used to modify data in the database. They are similar to queries but are used for creating, updating, or deleting data.
+    // Each mutation can have its own set of arguments and return types.
     Mutation: {
+      // Create, update, delete, and toggle todo
         createTodo: async (_, { title, completed, userLogin }) => {
             if (!userLogin) {
                 throw new Error("User login is required to create a todo");
@@ -375,7 +384,9 @@ const resolvers = {
           return getUserByLogin(login);
         }
       },
-      
+      // Below are the resolvers for the User and ToDoItem types. They define how to resolve the fields in these types.
+      // These resolvers are used to fetch related data for the User and ToDoItem types. The handle the relationships between the types.
+      // For example, the User type has a todos field that returns all todos for that user.
       User: {
         todos: async (parent) => {
           await db.read();
@@ -401,8 +412,8 @@ const schema = makeExecutableSchema({
 const yoga = createYoga({
   schema,
   graphiql: true, // Enable GraphiQL UI
-  context: ({ request }) => {
-    return { db };
+  context: ({ request }) => { // Create context for each request
+    return { db }; // Pass the database instance to the context
   }
 });
 

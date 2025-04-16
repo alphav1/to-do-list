@@ -1,43 +1,53 @@
+# This file contains the GraphQL schema definition for the application.
+# It defines the types, queries, and mutations that can be performed.
+# The schema is written in GraphQL Schema Definition Language (SDL).
+
+# The type Query defines the entry points for fetching data.
+# The ! symbol indicates that the field is non-nullable, meaning it must return a value.
+# The [Type] syntax indicates a list of items of the specified type.
 type Query {
-	demo: String!
-	todos: [ToDoItem!]
-	todo(title: String!, userLogin: String!): ToDoItem
+	demo: String! # A simple demo query that returns a string.
+	todos: [ToDoItem!] # List of all todo items.
+	todo(title: String!, userLogin: String!): ToDoItem # Fetch a todo item by title and user login.
 	todoById(id: ID!): ToDoItem # Added ID-based query
-	users: [User!]
-	user(login: String!): User
+	users: [User!] # List of all users.
+	user(login: String!): User # Fetch a user by login.
 	userById(id: ID!): User # Added ID-based query
 }
 
-type ToDoItem {
-	id: ID!
-	title: String!
-	completed: Boolean!
-	user: User!
+type User {
+	id: ID! # Unique identifier for the user.
+	name: String! # Name of the user.
+	email: String! # Email address of the user.
+	login: String! # Login identifier for the user.
+	todos: [ToDoItem!]! # List of todo items associated with the user.
 }
 
+type ToDoItem {
+	id: ID! # Unique identifier for the todo item.
+	title: String! # Title of the todo item.
+	completed: Boolean! # Indicates if the todo item is completed.
+	user: User! # The user associated with the todo item.
+}
+
+# The type Mutation defines the entry points for modifying data.
+# It allows creating, updating, and deleting data in the application.
 type Mutation {
 	# User mutations
-	createUser(name: String!, email: String!, login: String!): User!
-	updateUser(login: String!, name: String, email: String): User
-	deleteUser(login: String!): Boolean!
-	getUserByLogin(login: String!): User
-
+	createUser(name: String!, email: String!, login: String!): User! # Create a new user.
+	updateUser(login: String!, name: String, email: String): User # Update an existing user.
+	deleteUser(login: String!): Boolean! # Delete a user by login.
+	getUserByLogin(login: String!): User # Fetch a user by login.
 	# Todo mutations
-	createTodo(title: String!, completed: Boolean, userLogin: String!): ToDoItem!
+	createTodo(title: String!, completed: Boolean, userLogin: String!): ToDoItem! # Create a new todo item.
+	# The userLogin field is used to associate the todo item with a user.
 	updateTodo(
-		title: String!
-		userLogin: String!
-		newTitle: String
-		completed: Boolean
+		title: String! # The title of the todo item to update.
+		userLogin: String! # The login of the user associated with the todo item.
+		# The following fields are optional and can be used to update the todo item.
+		newTitle: String # The new title for the todo item.
+		completed: Boolean # The new completion status for the todo item.
 	): ToDoItem
-	deleteTodo(title: String!, userLogin: String!): Boolean!
-	toggleTodoCompleted(title: String!, userLogin: String!): ToDoItem
-}
-
-type User {
-	id: ID!
-	name: String!
-	email: String!
-	login: String!
-	todos: [ToDoItem!]!
+	deleteTodo(title: String!, userLogin: String!): Boolean! # Delete a todo item by title and user login.
+	toggleTodoCompleted(title: String!, userLogin: String!): ToDoItem # Toggle the completion status of a todo item.
 }
