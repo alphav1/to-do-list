@@ -1,0 +1,230 @@
+(LowDB works differently than traditional SQL databases.
+The LowDB implementation uses a simple JSON file (db.json) that stores
+all data as a single JSON object with properties for different "collections".
+
+Reading the entire file - When you call db.read(), it loads the entire JSON file into memory as a JavaScript object
+JavaScript operations - You use standard JavaScript array methods like find(), filter(), map() to work with the data
+Writing back - After making changes, you call db.write() to save the entire object back to the file
+
+Not working with tables in the traditional database sense
+Working with JavaScript arrays of objects in memory
+Using JavaScript's native array methods for querying)
+
+1. Basic Queries:
+
+alphav1
+Provide examplary queries to test these changes.
+
+GitHub Copilot
+Example Queries for Testing User-Scoped Todo Operations
+Here's a comprehensive set of queries to test your updated GraphQL API that now handles same-title tasks for different users:
+
+1. Basic Queries
+Get all users
+{
+  users {
+    id
+    name
+    login
+  }
+}
+
+Get all todos
+{
+  todos {
+    id
+    title
+    completed
+    user {
+      login
+    }
+  }
+}
+
+
+2. User-Specific Todo Queries
+
+Get a specific todo by title and user login
+{
+  todo(title: "Naprawić samochód", userLogin: "p.waleczny") {
+    id
+    title
+    completed
+    user {
+      name
+      login
+    }
+  }
+}
+
+Get a specific user's todos
+{
+  user(login: "p.waleczny") {
+    name
+    todos {
+      title
+      completed
+    }
+  }
+}
+
+3. Mutation Tests
+
+Create a user
+mutation {
+  createUser(
+    name: "Maria Kowalska"
+    email: "m.kowalska@example.com"
+    login: "mkowalska"
+  ) {
+    id
+    name
+    login
+  }
+}
+
+Create a todo for a specific user
+mutation {
+  createTodo(
+    title: "Kupić mleko"
+    completed: false
+    userLogin: "jkonieczny"
+  ) {
+    id
+    title
+    completed
+    user {
+      name
+    }
+  }
+}
+
+Create a todo with same title for different user
+mutation {
+  createTodo(
+    title: "Kupić mleko"
+    completed: false
+    userLogin: "p.waleczny"
+  ) {
+    id
+    title
+    completed
+    user {
+      name
+      login
+    }
+  }
+}
+
+Update a todo
+mutation {
+  updateTodo(
+    title: "Kupić mleko"
+    userLogin: "jkonieczny"
+    newTitle: "Kupić mleko i chleb"
+    completed: true
+  ) {
+    id
+    title
+    completed
+  }
+}
+
+Toggle todo completion status
+mutation {
+  toggleTodoCompleted(
+    title: "Kupić mleko"
+    userLogin: "p.waleczny"
+  ) {
+    title
+    completed
+  }
+}
+
+Delete a todo
+mutation {
+  deleteTodo(
+    title: "Kupić mleko"
+    userLogin: "p.waleczny"
+  )
+}
+
+4. Testing Error Cases
+Try to create duplicate todo for same user
+mutation {
+  createTodo(
+    title: "Kupić mleko i chleb"
+    completed: false
+    userLogin: "jkonieczny"
+  ) {
+    id
+    title
+  }
+}
+
+Try to access todo without specifying user
+{
+  todo(title: "Naprawić samochód") {
+    id
+    title
+  }
+}
+
+Try to update non-existent todo
+mutation {
+  updateTodo(
+    title: "Non-existent task"
+    userLogin: "jkonieczny"
+    completed: true
+  ) {
+    id
+    title
+  }
+}
+
+Try to delete todo for wrong user
+mutation {
+  deleteTodo(
+    title: "Naprawić samochód"
+    userLogin: "jkonieczny"
+  )
+}
+
+5. Complex Scenarios
+Create a user and then add todos for them
+
+mutation {
+  createUser(
+    name: "Robert Nowicki"
+    email: "r.nowicki@example.com"
+    login: "rnowicki"
+  ) {
+    id
+    login
+  }
+}
+
+mutation {
+  createTodo(
+    title: "Zadzwonić do szefa"
+    completed: false
+    userLogin: "rnowicki"
+  ) {
+    id
+    title
+  }
+}
+
+Delete a user and verify their todos are gone
+mutation {
+  deleteUser(login: "rnowicki")
+}
+
+{
+  todos {
+    title
+    user {
+      login
+    }
+  }
+}
